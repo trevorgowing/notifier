@@ -1,0 +1,27 @@
+{
+  "name": "notifier",
+  "version": "0.0.1",
+  "description": "Multi channel notification sender",
+  "main": "index.js",
+  "repository": "git@github.com:trevorgowing/notifier.git",
+  "author": "Trevor Gowing <trev.gowing@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node --inspect index.js | pino",
+    "lint": "standard",
+    "test": "standard && NODE_ENV=test tap -J \"test/**/*.js\"",
+    "test:cov": "standard && NODE_ENV=test tap -J \"test/**/*.js\" --coverage",
+    "posttest:cov": "tap --coverage-report=lcov"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mongodb": "^2.2.33",
+    "pino": "^4.10.2"
+  },
+  "devDependencies": {
+    "sinon": "^4.1.2",
+    "standard": "^10.0.3",
+    "tap": "^10.7.3"
+  }
+}

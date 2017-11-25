@@ -1,0 +1,28 @@
+version: "2"
+
+services:
+  notifier:
+    build: .
+    environment:
+      DATABASE_URL: "mongodb://database/notifier"
+    ports:
+      - "8989:8989"
+    networks:
+      - notifier
+    depends_on:
+      - database
+    command: yarn start    
+
+  database:
+    image: mongo:3.4.10
+    networks:
+      - notifier
+    volumes:
+      - data:/data/db
+    command: mongod --enableMajorityReadConcern
+
+networks:
+  notifier:
+
+volumes:
+  data:

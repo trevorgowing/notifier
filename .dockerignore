@@ -1,0 +1,5 @@
+*.sh
+.git
+.gitignore
+coverage
+node_modules
