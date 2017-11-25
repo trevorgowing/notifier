@@ -17,7 +17,9 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "mongodb": "^2.2.33",
-    "pino": "^4.10.2"
+    "on-finished": "^2.3.0",
+    "pino": "^4.10.2",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "sinon": "^4.1.2",
