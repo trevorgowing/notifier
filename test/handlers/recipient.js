@@ -22,12 +22,6 @@ tap.test('RecipientHandler', t => {
     status () {
       return this
     },
-    set () {
-      return this
-    },
-    type () {
-      return this
-    },
     json () {},
     sendStatus () {}
   }
@@ -66,7 +60,7 @@ tap.test('RecipientHandler', t => {
     t.test('should send 200 response containing recipient when recipientRepository yields recipient', t => {
       const recipientId = uuid()
       const recipient = {
-        id: recipientId
+        _id: recipientId
       }
       const request = {
         params: {
@@ -83,6 +77,58 @@ tap.test('RecipientHandler', t => {
       t.ok(recipientRepository.findById.calledWith(request.params.id, sinon.match.func))
       t.ok(response.status.calledWith(200))
       t.ok(response.json.calledWith(recipient))
+      t.end()
+    })
+
+    t.end()
+  })
+
+  t.test('handlePost', t => {
+    t.beforeEach((next) => {
+      sandbox.spy(response, 'status')
+      sandbox.spy(response, 'json')
+      next()
+    })
+
+    t.test('should call next with an error when recipient repository.save() yields an error', t => {
+      const error = new Error(':(')
+      const recipient = {
+        email: 'trevor@email.com',
+        phone: '831234567'
+      }
+      const request = {
+        body: recipient,
+        logger: noOpLogger
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'save').yields(error)
+
+      recipientHandler.handlePost(request, response, next)
+
+      t.ok(next.calledWith(error))
+      t.end()
+    })
+
+    t.test('should send 201 response containing recipient when recipientRepository.save() yields recipient', t => {
+      const recipient = {
+        email: 'trevor@email.com',
+        phone: '+27831234567'
+      }
+      const identifiedRecipient = Object.assign({}, {_id: uuid()}, recipient)
+      const request = {
+        body: recipient,
+        logger: noOpLogger
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'save').yields(null, identifiedRecipient)
+
+      recipientHandler.handlePost(request, response, next)
+
+      t.ok(recipientRepository.save.calledWith(request.body, sinon.match.func))
+      t.ok(response.status.calledWith(201))
+      t.ok(response.json.calledWith(identifiedRecipient))
       t.end()
     })
 
