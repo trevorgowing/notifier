@@ -90,7 +90,7 @@ tap.test('RecipientHandler', t => {
       next()
     })
 
-    t.test('should call next with an error when recipient repository.save() yields an error', t => {
+    t.test('should call next with an error when recipient repository.create() yields an error', t => {
       const error = new Error(':(')
       const recipient = {
         email: 'trevor@email.com',
@@ -102,7 +102,7 @@ tap.test('RecipientHandler', t => {
       }
       const next = sandbox.stub()
 
-      sandbox.stub(recipientRepository, 'save').yields(error)
+      sandbox.stub(recipientRepository, 'create').yields(error)
 
       recipientHandler.handlePost(request, response, next)
 
@@ -110,7 +110,7 @@ tap.test('RecipientHandler', t => {
       t.end()
     })
 
-    t.test('should send 201 response containing recipient when recipientRepository.save() yields recipient', t => {
+    t.test('should send 201 response containing recipient when recipientRepository.create() yields recipient', t => {
       const recipient = {
         email: 'trevor@email.com',
         phone: '+27831234567'
@@ -122,11 +122,11 @@ tap.test('RecipientHandler', t => {
       }
       const next = sandbox.stub()
 
-      sandbox.stub(recipientRepository, 'save').yields(null, identifiedRecipient)
+      sandbox.stub(recipientRepository, 'create').yields(null, identifiedRecipient)
 
       recipientHandler.handlePost(request, response, next)
 
-      t.ok(recipientRepository.save.calledWith(request.body, sinon.match.func))
+      t.ok(recipientRepository.create.calledWith(request.body, sinon.match.func))
       t.ok(response.status.calledWith(201))
       t.ok(response.json.calledWith(identifiedRecipient))
       t.end()

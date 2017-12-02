@@ -90,7 +90,7 @@ tap.test('RecipientRepository', t => {
     t.end()
   })
 
-  t.test('save', t => {
+  t.test('create', t => {
     t.test('should call callback with error when connecting to database fails', t => {
       const error = new Error(':(')
       const recipient = {
@@ -101,7 +101,7 @@ tap.test('RecipientRepository', t => {
 
       sandbox.stub(database, 'connect').yields(error)
 
-      recipientRepository.save(recipient, callback)
+      recipientRepository.create(recipient, callback)
 
       t.ok(callback.calledWith(error))
       t.end()
@@ -118,7 +118,7 @@ tap.test('RecipientRepository', t => {
       sandbox.stub(database, 'connect').yields(null, dbStub)
       sandbox.stub(recipientCollectionStub, 'insertOne').yields(error)
 
-      recipientRepository.save(recipient, callback)
+      recipientRepository.create(recipient, callback)
 
       t.ok(callback.calledWith(error))
       t.end()
@@ -159,7 +159,7 @@ tap.test('RecipientRepository', t => {
       sandbox.stub(database, 'connect').yields(null, dbStub)
       sandbox.stub(recipientCollectionStub, 'insertOne').yields(null, result)
 
-      recipientRepository.save(recipient, callback)
+      recipientRepository.create(recipient, callback)
 
       t.ok(callback.calledWith(null, identifiedRecipient))
       t.end()
