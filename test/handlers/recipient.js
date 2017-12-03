@@ -135,5 +135,64 @@ tap.test('RecipientHandler', t => {
     t.end()
   })
 
+  t.test('handlePut', t => {
+    t.beforeEach((next) => {
+      sandbox.spy(response, 'status')
+      sandbox.spy(response, 'json')
+      next()
+    })
+
+    t.test('should call next with error when recipientRepository.update() yields an error', t => {
+      const error = new Error(':(')
+      const recipientId = uuid()
+      const recipient = {
+        email: 'trevor@email.com',
+        phone: '+27831234567'
+      }
+      const request = {
+        params: {
+          id: recipientId
+        },
+        body: recipient,
+        logger: noOpLogger
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'update').yields(error)
+
+      recipientHandler.handlePut(request, response, next)
+
+      t.ok(next.calledWith(error))
+      t.end()
+    })
+
+    t.test('should send 200 response containing recipient when recipientRepository.update() yields recipient', t => {
+      const recipientId = uuid()
+      const recipient = {
+        email: 'trevor@email.com',
+        phone: '+27831234567'
+      }
+      const request = {
+        params: {
+          id: recipientId
+        },
+        body: recipient,
+        logger: noOpLogger
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'update').yields(null, recipient)
+
+      recipientHandler.handlePut(request, response, next)
+
+      t.ok(recipientRepository.update.calledWith(request.params.id, request.body, sinon.match.func))
+      t.ok(response.status.calledWith(200))
+      t.ok(response.json.calledWith(recipient))
+      t.end()
+    })
+
+    t.end()
+  })
+
   t.end()
 })
