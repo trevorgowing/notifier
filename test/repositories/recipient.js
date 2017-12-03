@@ -15,7 +15,10 @@ const recipientCollectionStub = {
     throw new Error('RecipientCollectionStub.insertOne() not stubbed')
   },
   findOneAndReplace () {
-    throw new Error('RecipientCollectionStub.findOneAndReplace() not stubbed')
+    throw new Error('RecipientCollectionStub.findOneAndReplace()  not stubbed')
+  },
+  deleteOne () {
+    throw new Error('RecipientCollectionStub.deleteOne()  not stubbed')
   }
 }
 
@@ -250,6 +253,69 @@ tap.test('RecipientRepository', t => {
       recipientRepository.update(recipientId, recipient, callback)
 
       t.ok(callback.calledWith(null, recipient))
+      t.end()
+    })
+
+    t.end()
+  })
+
+  t.test('delete', t => {
+    t.test('should call callback with error when connecting to database fails', t => {
+      const error = new Error(':(')
+      const recipientId = new ObjectID()
+      const callback = sandbox.stub()
+
+      sandbox.stub(database, 'connect').yields(error)
+
+      recipientRepository.delete(recipientId, callback)
+
+      t.ok(callback.calledWith(error))
+      t.end()
+    })
+
+    t.test('should call callback with error when deleteOne yields an error', t => {
+      const error = new Error(':(')
+      const recipientId = new ObjectID()
+      const callback = sandbox.stub()
+
+      sandbox.stub(database, 'connect').yields(null, dbStub)
+      sandbox.stub(recipientCollectionStub, 'deleteOne').yields(error)
+
+      recipientRepository.delete(recipientId, callback)
+
+      t.ok(callback.calledWith(error))
+      t.end()
+    })
+
+    t.test('should call callback with an error when deleteOne yields deletedCount 0', t => {
+      const recipientId = new ObjectID()
+      const result = {
+        deletedCount: 0
+      }
+      const callback = sandbox.stub()
+
+      sandbox.stub(database, 'connect').yields(null, dbStub)
+      sandbox.stub(recipientCollectionStub, 'deleteOne').yields(null, result)
+
+      recipientRepository.delete(recipientId, callback)
+
+      t.ok(callback.calledWith(sinon.match.instanceOf(NotFoundError)))
+      t.end()
+    })
+
+    t.test('should call callback with no arugments when deleteOne yields deltedCount 1', t => {
+      const recipientId = new ObjectID()
+      const result = {
+        deletedCount: 1
+      }
+      const callback = sandbox.stub()
+
+      sandbox.stub(database, 'connect').yields(dbStub)
+      sandbox.stub(recipientCollectionStub, 'deleteOne').yields(result)
+
+      recipientRepository.delete(recipientId, callback)
+
+      t.ok(callback.calledOnce)
       t.end()
     })
 
