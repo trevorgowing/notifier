@@ -194,5 +194,50 @@ tap.test('RecipientHandler', t => {
     t.end()
   })
 
+  t.test('handleDelete', t => {
+    t.beforeEach((next) => {
+      sandbox.spy(response, 'sendStatus')
+      next()
+    })
+
+    t.test('should call next with an error when recipientRepository.delete() yields an error', t => {
+      const error = new Error(':(')
+      const recipientId = uuid()
+      const request = {
+        params: {
+          id: recipientId
+        }
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'delete').yields(error)
+
+      recipientHandler.handleDelete(request, response, next)
+
+      t.ok(next.calledWith(error))
+      t.end()
+    })
+
+    t.test('should send 204 response when recipientRepository.delete does not yield an error', t => {
+      const recipientId = uuid()
+      const request = {
+        params: {
+          id: recipientId
+        }
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'delete').yields(null)
+
+      recipientHandler.handleDelete(request, response, next)
+
+      t.ok(recipientRepository.delete.calledWith(request.params.id, sinon.match.func))
+      t.ok(response.sendStatus.calledWith(204))
+      t.end()
+    })
+
+    t.end()
+  })
+
   t.end()
 })
