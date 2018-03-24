@@ -5,6 +5,8 @@ services:
     build: .
     environment:
       DATABASE_URL: "mongodb://database/notifier"
+      NEXMO_API_KEY: "<api key>"
+      NEXMO_API_SECRET: "<api secret>"
     ports:
       - "8989:8989"
     networks:
