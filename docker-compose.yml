@@ -7,6 +7,9 @@ services:
       DATABASE_URL: "mongodb://database/notifier"
       NEXMO_API_KEY: "<api key>"
       NEXMO_API_SECRET: "<api secret>"
+      FIREBASE_KEY_PATH: "/opt/firebase-key.json"
+    volumes:
+      - "/opt/firebase-key.json:/opt/firebase-key.json"
     ports:
       - "8989:8989"
     networks:
