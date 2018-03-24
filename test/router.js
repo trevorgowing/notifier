@@ -35,6 +35,29 @@ tap.test('Router', t => {
     next()
   })
 
+  t.test('GET /recipients should call recipientHandler.handleGetAll', t => {
+    sandbox.stub(recipientHandler, 'handleGetAll').callsFake(fakeHandler)
+
+    const request = new FakeRequest({
+      method: 'GET',
+      url: '/recipients',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json'
+      }
+    })
+
+    const response = {
+      end () {
+        t.equal(recipientHandler.handleGetAll.callCount, 1)
+        t.end()
+      }
+    }
+
+    const router = theRouter()
+    router.handle(request, response)
+  })
+
   t.test('POST /recipients should call recipientHandler.handlePost', t => {
     sandbox.stub(recipientHandler, 'handlePost').callsFake(fakeHandler)
 

@@ -5,6 +5,18 @@ const recipientRepository = require('../../lib/repositories/recipient')
 const sinon = require('sinon')
 const tap = require('tap')
 const uuid = require('uuid/v1')
+const {Readable} = require('stream')
+
+class FakeStream extends Readable {
+  constructor(recipients) {
+    super()
+    this.recipients = recipients
+  }
+
+  _read () {
+    this.push(null)
+  }
+}
 
 const noOpLogger = {
   trace () {},
@@ -31,56 +43,22 @@ tap.test('RecipientHandler', t => {
     next()
   })
 
-  t.test('handleGet', t => {
+  t.test('handleGetAll', t => {
     t.beforeEach((next) => {
       sandbox.spy(response, 'status')
       sandbox.spy(response, 'json')
       next()
     })
 
-    t.test('should call next with an error when recipientRepository.findOne() yields an error', t => {
-      const recipientId = uuid()
+    t.test('should call next with an error when recipientRepository.find() cursor stream emits an error', t +> {
       const error = new Error(':(')
       const request = {
-        params: {
-          id: recipientId
-        },
         logger: noOpLogger
       }
       const next = sandbox.stub()
 
-      sandbox.stub(recipientRepository, 'findById').yields(error)
-
-      recipientHandler.handleGet(request, response, next)
-
-      t.ok(next.calledWith(error))
-      t.end()
+      sandbox.stub(recipientRepository, 'find').yields()
     })
-
-    t.test('should send 200 response containing recipient when recipientRepository yields recipient', t => {
-      const recipientId = uuid()
-      const recipient = {
-        _id: recipientId
-      }
-      const request = {
-        params: {
-          id: recipientId
-        },
-        logger: noOpLogger
-      }
-      const next = sandbox.stub()
-
-      sandbox.stub(recipientRepository, 'findById').yields(null, recipient)
-
-      recipientHandler.handleGet(request, response, next)
-
-      t.ok(recipientRepository.findById.calledWith(request.params.id, sinon.match.func))
-      t.ok(response.status.calledWith(200))
-      t.ok(response.json.calledWith(recipient))
-      t.end()
-    })
-
-    t.end()
   })
 
   t.test('handlePost', t => {
@@ -129,6 +107,58 @@ tap.test('RecipientHandler', t => {
       t.ok(recipientRepository.create.calledWith(request.body, sinon.match.func))
       t.ok(response.status.calledWith(201))
       t.ok(response.json.calledWith(identifiedRecipient))
+      t.end()
+    })
+
+    t.end()
+  })
+
+  t.test('handleGet', t => {
+    t.beforeEach((next) => {
+      sandbox.spy(response, 'status')
+      sandbox.spy(response, 'json')
+      next()
+    })
+
+    t.test('should call next with an error when recipientRepository.findOne() yields an error', t => {
+      const recipientId = uuid()
+      const error = new Error(':(')
+      const request = {
+        params: {
+          id: recipientId
+        },
+        logger: noOpLogger
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'findById').yields(error)
+
+      recipientHandler.handleGet(request, response, next)
+
+      t.ok(next.calledWith(error))
+      t.end()
+    })
+
+    t.test('should send 200 response containing recipient when recipientRepository yields recipient', t => {
+      const recipientId = uuid()
+      const recipient = {
+        _id: recipientId
+      }
+      const request = {
+        params: {
+          id: recipientId
+        },
+        logger: noOpLogger
+      }
+      const next = sandbox.stub()
+
+      sandbox.stub(recipientRepository, 'findById').yields(null, recipient)
+
+      recipientHandler.handleGet(request, response, next)
+
+      t.ok(recipientRepository.findById.calledWith(request.params.id, sinon.match.func))
+      t.ok(response.status.calledWith(200))
+      t.ok(response.json.calledWith(recipient))
       t.end()
     })
 
